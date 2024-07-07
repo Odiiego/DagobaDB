@@ -16,23 +16,6 @@
 //   [7, 15],
 // ];
 
-// parents = (vertices) =>
-//   E.reduce(
-//     (acc, [parent, child]) =>
-//       vertices.includes(child) ? acc.concat(parent) : acc,
-//     [],
-//   );
-// children = (vertices) =>
-//   E.reduce(
-//     (acc, [parent, child]) =>
-//       vertices.includes(parent) ? acc.concat(child) : acc,
-//     [],
-//   );
-
-// console.log(children(children(children(parents(parents(parents([8])))))));
-
-//BUILD A BETTER GRAPH
-
 Dagoba.G = {};
 
 Dagoba.graph = function (V, E) {
