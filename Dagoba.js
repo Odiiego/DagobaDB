@@ -84,3 +84,8 @@ Dagoba.G.addEdge = function (edge) {
 
   this.edges.push(edge);
 };
+
+Dagoba.error = function (msg) {
+  console.log(msg);
+  return false;
+};
