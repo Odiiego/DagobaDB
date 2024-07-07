@@ -49,3 +49,38 @@ Dagoba.graph = function (V, E) {
 
   return graph;
 };
+
+Dagoba.G.addVertices = function (vs) {
+  vs.forEach(this.addVertex.bind(this));
+};
+
+Dagoba.G.addEdges = function (es) {
+  es.forEach(this.addEdge.bind(this));
+};
+
+Dagoba.G.addVertex = function (vertex) {
+  if (!vertex._id) vertex._id = this.autoid++;
+  else if (this.findVertexById(vertex._id))
+    return Dagoba.error('A vertex with that ID already exists');
+
+  this.vertices.push(vertex);
+  this.vertexIndex[vertex._id] = vertex;
+  vertex._out = [];
+  vertex._in = [];
+  return vertex._id;
+};
+
+Dagoba.G.addEdge = function (edge) {
+  edge._in = this.findVertexById(edge._in);
+  edge._out = this.findVertexById(edge._out);
+
+  if (!(edge._in && edge._out))
+    return Dagoba.error(
+      `Thats edge's ${edge._in ? 'out' : 'in'} vertex wasn't found`,
+    );
+
+  edge._out._out.push(edge);
+  edge._in._in.push(edge);
+
+  this.edges.push(edge);
+};
