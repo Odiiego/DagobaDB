@@ -100,7 +100,7 @@ Dagoba.G.v = function () {
 
 Dagoba.Pipetypes = {};
 
-Daboba.addPipetype = function (name, fun) {
+Dagoba.addPipetype = function (name, fun) {
   Dagoba.Pipetypes[name] = fun;
   Dagoba.Q[name] = function () {
     return this.add(name, [].slice.apply(arguments));
