@@ -97,3 +97,23 @@ Dagoba.G.v = function () {
   query.add('vertex', [].slice.call(arguments));
   return query;
 };
+
+Dagoba.Pipetypes = {};
+
+Daboba.addPipetype = function (name, fun) {
+  Dagoba.Pipetypes[name] = fun;
+  Dagoba.Q[name] = function () {
+    return this.add(name, [].slice.apply(arguments));
+  };
+};
+
+Dagoba.getPipetype = function (name) {
+  const pipetype = Dagoba.Pipetypes[name];
+  if (!pipetype) Dagoba.error(`Unreconized pipetype: ${name}`);
+
+  return pipetype || Dagoba.fauxPipetype;
+};
+
+Dagoba.fauxPipetype = function (_, _, maybe_gremlin) {
+  return maybe_gremlin || 'pull';
+};
