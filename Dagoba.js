@@ -117,3 +117,75 @@ Dagoba.getPipetype = function (name) {
 Dagoba.fauxPipetype = function (_, _, maybe_gremlin) {
   return maybe_gremlin || 'pull';
 };
+
+Dagoba.addPipetype('vertex', function (graph, args, gremlin, state) {
+  if (!state.vertices) state.vertices = graph.findVertices(args);
+  if (!state.vertices.length) return 'done';
+
+  const vertex = state.vertices.pop();
+  return Dagoba.makeGremlin(vertex, gremlin.state);
+});
+
+Dagoba.addPipetype('out', Dagoba.simpleTraversal('out'));
+Dagoba.addPipetype('in', Dagoba.simpleTraversal('in'));
+
+Dagoba.simpleTraversal = function (dir) {
+  const find_method = dir == 'out' ? 'findOutEdges' : 'findInEdges';
+  const edge_list = dir == 'out' ? '_in' : '_out';
+
+  return function (graph, args, gremlin, state) {
+    if (!gremlin && (!state.edges || !state.edges.length)) return 'pull';
+    if (!state.edges || !state.edges.length) {
+      state.gremlin = gremlin;
+      state.edges = graph[find_method](gremlin.vertex).filter(
+        Dagoba.filterEdges(args[0]),
+      );
+    }
+    if (!state.edges.length) return 'pull';
+
+    const vertex = state.edges.pop()[edge_list];
+    return Dagoba.gotoVertex(state.gremlin, vertex);
+  };
+};
+
+Dagoba.addPipetype('property', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+  gremlin.result = gremlin.vertex[args[0]];
+  return gremlin.result == null ? false : gremlin;
+});
+
+Dagoba.addPipetype('unique', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+  if (state[gremlin.vertex._id]) return 'pull';
+
+  state[gremlin.vertex._id] = true;
+  return gremlin;
+});
+
+Dagoba.addPipetype('filter', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+
+  if (typeof args[0] == 'object')
+    return Dagoba.objectFilter(gremlin.vertex, args[0]) ? gremlin : pull;
+
+  if (typeof args[0] != 'function') {
+    Dagoba.error(`Filter is not a function: ${args[0]}`);
+    return gremlin;
+  }
+
+  if (!args[0](gremlin.vertex, gremlin)) return 'pull';
+  return gremlin;
+});
+
+Dagoba.addPipetype('take', function (graph, args, gremlin, state) {
+  state.taken = state.taken || 0;
+
+  if (state.taken == args[0]) {
+    state.taken = 0;
+    return 'done';
+  }
+
+  if (!gremlin) return 'pull';
+  state.taken++;
+  return gremlin;
+});
