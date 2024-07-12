@@ -189,3 +189,40 @@ Dagoba.addPipetype('take', function (graph, args, gremlin, state) {
   state.taken++;
   return gremlin;
 });
+
+Dagoba.addPipetype('as', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+
+  gremlin.state.as = gremlin.state.as || {};
+  gremlin.state.as[args[0]] = gremlin.vertex;
+  return gremlin;
+});
+
+Dagoba.addPipetype('merge', function (graph, args, gremlin, state) {
+  if (!state.vertices && !gremlin) return 'pull';
+
+  if (!state.vertices || !state.vertices.length) {
+    const obj = (gremlin.state || {}).as || {};
+    state.vertices = args
+      .map(function (id) {
+        return obj[id];
+      })
+      .filter(Boolean);
+  }
+
+  if (!state.vertices.length) return 'pull';
+
+  const vertex = state.vertices.pop();
+  return Dagoba.makeGremlin(vertex, gremlin.state);
+});
+
+Dagoba.addPipetype('except', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+  if (gremlin.vertex == gremlin.state.as[args[0]]) return 'pull';
+  return gremlin;
+});
+
+Dagoba.addPipetype('back', function (graph, args, gremlin, state) {
+  if (!gremlin) return 'pull';
+  return Dagoba.gotoVertex(gremlin, gremlin.state.as[args[0]]);
+});
