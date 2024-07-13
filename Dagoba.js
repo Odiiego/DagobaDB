@@ -272,3 +272,49 @@ Dagoba.objectFilter = function (thing, filter) {
   for (const key in filter) if (thing[key] !== filter[key]) return false;
   return true;
 };
+
+Dagoba.Q.run = function () {
+  const max = this.program.length - 1;
+  let results = [];
+  let maybe_gremlin = false;
+  let done = -1;
+  let pc = max;
+
+  let step, state, pipetype;
+
+  while (done < max) {
+    const ts = this.state;
+    step = this.program[pc];
+    state = ts[pc] = ts[pc] || {};
+    pipetype = Dagoba.getPipetype(step[0]);
+    maybe_gremlin = pipetype(this.graph, step[1], maybe_gremlin, state);
+
+    if (maybe_gremlin == 'pull') {
+      maybe_gremlin = false;
+      if (pc - 1 > done) {
+        pc--;
+        continue;
+      } else {
+        done = pc;
+      }
+    }
+    if (maybe_gremlin == 'done') {
+      maybe_gremlin = false;
+      done = pc;
+    }
+
+    pc++;
+    if (pc > max) {
+      if (maybe_gremlin) {
+        results.push(maybe_gremlin);
+        maybe_gremlin = false;
+        pc--;
+      }
+    }
+  }
+  results = results.map(function (gremlin) {
+    return gremlin.result != null ? gremlin.result : gremlin.vertex;
+  });
+
+  return results;
+};
