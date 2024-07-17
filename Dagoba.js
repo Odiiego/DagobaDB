@@ -274,6 +274,7 @@ Dagoba.objectFilter = function (thing, filter) {
 };
 
 Dagoba.Q.run = function () {
+  this.program = Dagoba.transform(this.program);
   const max = this.program.length - 1;
   let results = [];
   let maybe_gremlin = false;
@@ -317,4 +318,23 @@ Dagoba.Q.run = function () {
   });
 
   return results;
+};
+
+Dagoba.T = [];
+
+Dagoba.addTransformer = function (fun, priority) {
+  if (typeof fun != 'function')
+    return Dagoba.error('Invalid transformer function');
+
+  for (const i = 0; i < Dagoba.T.length; i++) {
+    if (priority > Dagoba.T[i].priority) break;
+  }
+
+  Dagoba.T.splice(i, 0, { priority: priority, fun: fun });
+};
+
+Dagoba.transform = function (program) {
+  return Dagoba.T.reduce(function (acc, transformer) {
+    return transformer.fun(acc);
+  }, program);
 };
