@@ -362,3 +362,17 @@ Dagoba.addAlias('cousins', [
   'children',
   'unique',
 ]);
+
+// Dagoba.G.findInEdges = function (vertex) {
+//   return this.inEdgeIndex[vertex._id];
+// };
+// Dagoba.G.findOutEdges = function (vertex) {
+//   return this.outEdgeIndex[vertex._id];
+// };
+
+Dagoba.G.findInEdges = function (vertex) {
+  return vertex._in;
+};
+Dagoba.G.findOutEdges = function (vertex) {
+  return vertex._out;
+};
