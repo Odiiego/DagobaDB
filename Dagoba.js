@@ -332,3 +332,11 @@ Dagoba.addAlias = function (newname, oldname, defaults) {
 
   Dagoba.addPipetype(newname, function () {});
 };
+
+Dagoba.extend = function (list, defaults) {
+  return Object.keys(defaults).reduce(function (acc, key) {
+    if (typeof list[key] != 'undefined') return acc;
+    acc[key] = defaults[key];
+    return acc;
+  }, list);
+};
