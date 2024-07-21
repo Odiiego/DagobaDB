@@ -1,21 +1,3 @@
-// V = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-// E = [
-//   [1, 2],
-//   [1, 3],
-//   [2, 4],
-//   [2, 5],
-//   [3, 6],
-//   [3, 7],
-//   [4, 8],
-//   [4, 9],
-//   [5, 10],
-//   [5, 11],
-//   [6, 12],
-//   [6, 13],
-//   [7, 14],
-//   [7, 15],
-// ];
-
 Dagoba.G = {};
 
 Dagoba.graph = function (V, E) {
@@ -337,4 +319,14 @@ Dagoba.transform = function (program) {
   return Dagoba.T.reduce(function (acc, transformer) {
     return transformer.fun(acc);
   }, program);
+};
+
+Dagoba.addAlias = function (newname, oldname, defaults) {
+  defaults = defaults || [];
+  Dagoba.addTransformer(function (program) {
+    return program.map(function (step) {
+      if (step[0] != newname) return step;
+      return [oldname, Dagoba.extend(step[1], defaults)];
+    });
+  }, 100);
 };
