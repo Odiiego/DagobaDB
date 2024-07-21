@@ -340,3 +340,25 @@ Dagoba.extend = function (list, defaults) {
     return acc;
   }, list);
 };
+
+Dagoba.addAlias('parents', 'out', ['parent']);
+Dagoba.addAlias('children', 'in', ['parent']);
+Dagoba.addAlias('grandparents', [
+  ['out', 'parent'],
+  ['out', 'parent'],
+]);
+Dagoba.addAlias('siblings', [
+  ['as', 'me'],
+  ['out', 'parent'],
+  ['in', 'parent'],
+  ['except', 'me'],
+]);
+Dagoba.addAlias('cousins', [
+  'parents',
+  ['as', 'folks'],
+  'parents',
+  'children',
+  ['except', 'folks'],
+  'children',
+  'unique',
+]);
