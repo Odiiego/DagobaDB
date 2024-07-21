@@ -329,4 +329,6 @@ Dagoba.addAlias = function (newname, oldname, defaults) {
       return [oldname, Dagoba.extend(step[1], defaults)];
     });
   }, 100);
+
+  Dagoba.addPipetype(newname, function () {});
 };
